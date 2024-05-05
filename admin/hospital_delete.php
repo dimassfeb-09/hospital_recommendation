@@ -22,7 +22,7 @@ if (mysqli_num_rows($resultUserSession) > 0) {
 $getHospitalIsRelationWithHospitalHospital = "SELECT hospital_id FROM doctor_hospital WHERE hospital_id = '$hospitalId' LIMIT 1";
 $resultHospitalRelation = mysqli_query($conn, $getHospitalIsRelationWithHospitalHospital);
 if ($resultHospitalRelation && mysqli_num_rows($resultHospitalRelation) > 0) {
-    echo "<script>alert('Tidak dapat dihapus, data rumah sakit berelasi dengan data lainnya');</script>";
+    echo "<script>alert('Data rumah sakit tidak dapat dihapus.');</script>";
     echo "<script>window.location.href='hospital_list.php';</script>";
     exit();
 } else {

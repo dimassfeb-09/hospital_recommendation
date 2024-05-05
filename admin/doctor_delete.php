@@ -22,7 +22,7 @@ if (mysqli_num_rows($resultUserSession) > 0) {
 $getDoctorIsRelationWithHospitalDoctor = "SELECT doctor_id FROM doctor_hospital WHERE doctor_id = '$doctorId' LIMIT 1";
 $resultDoctorRelation = mysqli_query($conn, $getDoctorIsRelationWithHospitalDoctor);
 if ($resultDoctorRelation && mysqli_num_rows($resultDoctorRelation) > 0) {
-    echo "<script>alert('Tidak dapat dihapus, data dokter berelasi dengan data lainnya');</script>";
+    echo "<script>alert('Data dokter tidak dapat dihapus');</script>";
     echo "<script>window.location.href='doctor_list.php';</script>";
     exit();
 } else {

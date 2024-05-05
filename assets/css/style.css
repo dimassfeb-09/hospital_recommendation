@@ -631,9 +631,10 @@ td {
   justify-content: center;
   align-items: center;
   width: 50%;
-  border: 1px solid black;
   margin-top: 30px;
   padding: 20px;
+  border: 1px solid #ccc; 
+  border-radius: 10px; 
 }
 
 .form_custom > div {
@@ -648,11 +649,29 @@ td {
 }
 
 .form_custom > div > input {
-  height: 40px;
-  font-size: 14px;
+    width: auto; 
+  height: 40px; 
+  margin-top: 10px;
+  border: 1px solid #ccc; 
+  border-radius: 5px; 
+  padding: 5px; 
+  font-size: 14px; 
+  background-color: #fff; 
+  color: #333; 
 }
-
 
 .form_custom > button {
   margin-top: 20px;
+}
+
+.select_role {
+  width: auto; 
+  height: 40px; 
+  margin-top: 10px;
+  border: 1px solid #ccc; 
+  border-radius: 5px; 
+  padding: 5px; 
+  font-size: 14px; 
+  background-color: #fff; 
+  color: #333; 
 }
