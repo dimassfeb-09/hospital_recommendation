@@ -1,37 +1,36 @@
 <?php
 require_once('config.php');
-
 session_start();
 
-$isAuthenticated = isset($_SESSION['authenticated']) ?? false;
+$isAuthenticated = isset($_SESSION['authenticated']) && $_SESSION['authenticated'];
 $emailSession = $_SESSION['email'] ?? '';
 
-$sqlGetUserInfo = "SELECT user_id, role FROM user WHERE email = '$emailSession'";
-$resultUserInfo = mysqli_query($conn, $sqlGetUserInfo);
+if ($emailSession) {
+    $sqlGetUserInfo = "SELECT user_id, role FROM user WHERE email = '$emailSession'";
+    $resultUserInfo = mysqli_query($conn, $sqlGetUserInfo);
 
-$row = mysqli_fetch_assoc($resultUserInfo);
-$userID = $row["user_id"];
-$role = $row["role"];
+    if ($resultUserInfo) {
+        $row = mysqli_fetch_assoc($resultUserInfo);
+        $userID = $row["user_id"];
+        $role = $row["role"];
 
-$requestUri = $_SERVER['REQUEST_URI'];
-if (strpos($requestUri, '/admin/') === 0) {
-    if ($role != "admin") {
-        header("Location: ../login.php");
+        $requestUri = $_SERVER['REQUEST_URI'];
+        if (strpos($requestUri, '/admin/') === 0 && $role != "admin") {
+            header("Location: ../login.php");
+            exit;
+        }
     }
 }
 
 if (isset($_POST['logout'])) {
     session_unset();
     session_destroy();
-    if (strpos($requestUri, '/admin/') === 0) {
-        header("Location: ../login.php");
-    } else {
-        header("Location: /login.php");
-    }
+    $redirectUrl = (strpos($requestUri, '/admin/') === 0) ? "../login.php" : "/login.php";
+    header("Location: $redirectUrl");
     exit;
 }
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
