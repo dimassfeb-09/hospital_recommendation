@@ -1,43 +1,49 @@
 <?php
 require('../navbar.php');
+require_once('../models/User.php');
 
-$userId = $_GET['user_id'];
+$userId = $_GET['user_id'] ?? 0;
+if ($userId === 0) {
+    header("Location: user_list.php");
+    exit;
+}
 
-$sqlGetUserDetail = "SELECT full_name, email, role FROM user WHERE user_id = '$userId'";
-$result = mysqli_query($conn, $sqlGetUserDetail);
+$user = new User($conn);
+$result = $user->getUserDetail($userId);
 if (mysqli_num_rows($result) > 0) {
-    $userData = mysqli_fetch_assoc($result);
+    $userData = $result->fetch_assoc();
     $fullName = $userData['full_name'];
     $email = $userData['email'];
     $role = $userData['role'];
+} else {
+    header("Location: user_list.php");
+    exit;
 }
 
 if (isset($_POST['submit'])) {
-    $fullName = $_POST['full_name'];
+    $fullName = $_POST['fullName'];
     $email = $_POST['email'];
     $role = $_POST['role'];
 
-    $sqlSelectEmailIsAlreadyExists = "SELECT user_id FROM user WHERE email = '$email' AND user_id != '$userId';";
-    $resultEmailIsExists = mysqli_query($conn, $sqlSelectEmailIsAlreadyExists);
-    if (mysqli_num_rows($resultEmailIsExists) > 0) {
+    $isEmailAlreadyExists = $user->getUserDetailByEmail($email);
+    if (mysqli_num_rows($isEmailAlreadyExists) > 0) {
         echo "<script>alert('Email telah digunakan.');</script>";
         echo "<script>window.location.href='user_list.php';</script>";
-        return;
+        exit;
     }
 
-    $sqlInsertDataDokter = "UPDATE user SET full_name='$fullName', email='$email', role='$role' WHERE user_id='$userId'";
-    $result = mysqli_query($conn, $sqlInsertDataDokter);
+    $result = $user->updateUser($userId, $fullName, $email, $role);
     if ($result) {
         if ($emailSession == $email) {
             session_unset();
             session_destroy();
             echo "<script>alert('Kamu mengubah akun admin, silahkan login kembali.');</script>";
             echo "<script>window.location.href='../login.php';</script>";
-            exit();
+            exit;
         } else {
             echo "<script>alert('Berhasil ubah data user.');</script>";
             echo "<script>window.location.href='user_list.php';</script>";
-            exit();
+            exit;
         }
     }
 }

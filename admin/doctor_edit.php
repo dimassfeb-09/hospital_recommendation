@@ -1,15 +1,23 @@
 <?php
 include('../navbar.php');
+require_once('../models/Doctor.php');
+
+$doctor = new Doctor($conn);
 
 $doctorId = $_GET['doctor_id'];
+if (!isset($doctorId)) {
+    header("Location: doctor_list.php");
+    exit;
+}
 
-$sqlGetDoctorDetail = "SELECT name, specialization, phone FROM doctor WHERE doctor_id = '$doctorId'";
-$result = mysqli_query($conn, $sqlGetDoctorDetail);
+$result = $doctor->getDetailDoctor($doctorId);
 if (mysqli_num_rows($result) > 0) {
-    $userData = mysqli_fetch_assoc($result);
+    $userData = $result->fetch_assoc();
     $name = $userData['name'];
     $specialization = $userData['specialization'];
     $phone = $userData['phone'];
+} else {
+    echo "<script>window.location.href = 'doctor_list.php';</script>";
 }
 
 if (isset($_POST['submit'])) {
@@ -17,13 +25,10 @@ if (isset($_POST['submit'])) {
     $specialization = $_POST['specialization'];
     $phone = $_POST['phone'];
 
-
-    $sqlInsertDataDokter = "UPDATE doctor SET name='$name', specialization='$specialization', phone='$phone' WHERE doctor_id='$doctorId'";
-    $result = mysqli_query($conn, $sqlInsertDataDokter);
+    $result = $doctor->updateDoctor($doctorId, $name, $specialization, $phone);
     if ($result) {
         echo "<script>alert('Berhasil ubah data dokter.');</script>";
-        header("Location: doctor_list.php");
-        // exit();
+        echo "<script>window.location.href = 'doctor_list.php';</script>";
     }
 }
 ?>

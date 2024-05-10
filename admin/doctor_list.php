@@ -1,8 +1,9 @@
 <?php
 include('../navbar.php');
+require_once('../models/Doctor.php');
 
-$sql = "SELECT * FROM doctor";
-$result = mysqli_query($conn, $sql);
+$doctor = new Doctor($conn);
+$result  = $doctor->getAllDoctor();
 
 ?>
 
@@ -28,20 +29,20 @@ $result = mysqli_query($conn, $sql);
             $count = 1;
             while ($row = mysqli_fetch_assoc($result)) :
             ?>
-            <tr>
-                <td><?= $count++ ?></td>
-                <td><?= $row["name"] ?></td>
-                <td><?= $row["specialization"] ?></td>
-                <td><?= $row["phone"] ?></td>
-                <td>
-                    <form action="/admin/doctor_edit.php?doctor_id=<?= $row["doctor_id"] ?>" method="post">
-                        <button type="submit" name="edit" class="button_action_custom">Edit</button>
-                    </form>
-                    <form action="/admin/doctor_delete.php?doctor_id=<?= $row["doctor_id"] ?>" method="post">
-                        <button type="submit" name="submit" class="button_action_custom">Delete</button>
-                    </form>
-                </td>
-            </tr>
+                <tr>
+                    <td><?= $count++ ?></td>
+                    <td><?= $row["name"] ?></td>
+                    <td><?= $row["specialization"] ?></td>
+                    <td><?= $row["phone"] ?></td>
+                    <td>
+                        <form action="/admin/doctor_edit.php?doctor_id=<?= $row["doctor_id"] ?>" method="post">
+                            <button type="submit" name="edit" class="button_action_custom">Edit</button>
+                        </form>
+                        <form action="/admin/doctor_delete.php?doctor_id=<?= $row["doctor_id"] ?>" method="post">
+                            <button type="submit" name="submit" class="button_action_custom">Delete</button>
+                        </form>
+                    </td>
+                </tr>
 
             <?php endwhile; ?>
 
@@ -50,15 +51,15 @@ $result = mysqli_query($conn, $sql);
 </div>
 
 <script>
-function showAdminPopup() {
-    var popup = document.getElementById('adminPopup');
-    popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
-}
+    function showAdminPopup() {
+        var popup = document.getElementById('adminPopup');
+        popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+    }
 
-document.getElementById('adminLink').addEventListener('click', function(event) {
-    event.preventDefault();
-    showAdminPopup();
-});
+    document.getElementById('adminLink').addEventListener('click', function(event) {
+        event.preventDefault();
+        showAdminPopup();
+    });
 </script>
 
 <?php include('../footer.php'); ?>

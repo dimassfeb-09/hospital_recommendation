@@ -1,13 +1,18 @@
 <?php
 require('../navbar.php');
+require_once('../models/Hospital.php');
 
-$email = $_SESSION['email'];
 $hospitalId = $_GET['hospital_id'];
+if (!isset($hospitalId)) {
+    header("Location: hospital_list.php");
+    exit;
+}
 
-$sqlGetHospitalDetail = "SELECT name, address, phone, email, website, image, description, rating, num_ratings FROM hospital WHERE hospital_id = '$hospitalId'";
-$result = mysqli_query($conn, $sqlGetHospitalDetail);
+$hospital = new Hospital($conn);
+
+$result = $hospital->getDetailHospital($hospitalId);
 if (mysqli_num_rows($result) > 0) {
-    $hospitalData = mysqli_fetch_assoc($result);
+    $hospitalData = $result->fetch_assoc();
     $name = $hospitalData['name'];
     $address = $hospitalData['address'];
     $phone = $hospitalData['phone'];
@@ -15,6 +20,8 @@ if (mysqli_num_rows($result) > 0) {
     $image = $hospitalData['image'];
     $website = $hospitalData['website'];
     $description = $hospitalData['description'];
+} else {
+    header("Location: hospital_list.php");
 }
 
 if (isset($_POST['submit'])) {
@@ -22,19 +29,14 @@ if (isset($_POST['submit'])) {
     $address = $_POST['address'];
     $phone = $_POST['phone'];
     $email = $_POST['email'];
-    $website = $_POST['website'];
     $image = $_POST['image'];
+    $website = $_POST['website'];
     $description = $_POST['description'];
 
-    $sqlInsertDataHospital = "UPDATE hospital
-    SET name='$name', address='$address', phone='$phone', email='$email', website='$website', image='$image', description='$description'
-    WHERE hospital_id='$hospitalId'";
-
-    $result = mysqli_query($conn, $sqlInsertDataHospital);
+    $result =  $hospital->updateHospital($hospitalId, $name, $address, $phone, $email, $image, $website, $description);
     if ($result) {
         echo "<script>alert('Berhasil ubah data rumah sakit.');</script>";
-        header("Location: hospital_list.php");
-        // exit();
+        echo "<script>window.location.href='hospital_list.php';</script>";
     }
 }
 ?>
@@ -47,17 +49,20 @@ if (isset($_POST['submit'])) {
 
         <div>
             <label for="name">Name</label>
-            <input type="text" id="name" name="name" value="<?= $name ?>" placeholder="Masukkan nama rumah sakit" required>
+            <input type="text" id="name" name="name" value="<?= $name ?>" placeholder="Masukkan nama rumah sakit"
+                required>
         </div>
 
         <div>
             <label for="address">Address</label>
-            <input type="text" id="address" name="address" value="<?= $address ?>" placeholder="Masukkan alamat" required>
+            <input type="text" id="address" name="address" value="<?= $address ?>" placeholder="Masukkan alamat"
+                required>
         </div>
 
         <div>
             <label for="phone">Phone</label>
-            <input type="tel" id="phone" name="phone" value="<?= $phone ?>" placeholder="Masukkan nomor telepon" required>
+            <input type="tel" id="phone" name="phone" value="<?= $phone ?>" placeholder="Masukkan nomor telepon"
+                required>
         </div>
 
         <div>
@@ -67,12 +72,14 @@ if (isset($_POST['submit'])) {
 
         <div>
             <label for="website">Website</label>
-            <input type="text" id="website" name="website" value="<?= $website ?>" placeholder="Masukkan url website" required>
+            <input type="text" id="website" name="website" value="<?= $website ?>" placeholder="Masukkan url website"
+                required>
         </div>
 
         <div>
             <label for="image">Gambar Rumah Sakit</label>
-            <input type="text" id="image" name="image" value="<?= $image ?>" placeholder="Masukkan url gambar rumah sakit" required>
+            <input type="text" id="image" name="image" value="<?= $image ?>"
+                placeholder="Masukkan url gambar rumah sakit" required>
         </div>
 
         <div>

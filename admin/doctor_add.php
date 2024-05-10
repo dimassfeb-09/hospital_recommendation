@@ -1,18 +1,18 @@
 <?php
 include('../navbar.php');
+require_once('../models/Doctor.php');
 
+$doctor = new Doctor($conn);
 
 if (isset($_POST['submit'])) {
     $name = $_POST['name'];
     $specialization = $_POST['specialization'];
     $phone = $_POST['phone'];
 
-    $sqlInsertDataDokter = "INSERT INTO doctor (name, specialization, phone) VALUES ('$name', '$specialization', '$phone');";
-    $result = mysqli_query($conn, $sqlInsertDataDokter);
+    $result = $doctor->insertDoctor($name, $specialization, $phone);
     if ($result) {
         echo "<script>alert('Berhasil tambah dokter.');</script>";
         echo "<script>window.location.href='doctor_list.php';</script>";
-        exit();
     }
 }
 ?>

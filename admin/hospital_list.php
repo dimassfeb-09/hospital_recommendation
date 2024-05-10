@@ -1,14 +1,9 @@
 <?php
 include('../navbar.php');
+require_once('../models/Hospital.php');
 
-$email = $_SESSION['email'];
-
-if (isset($_POST['logout'])) {
-    session_unset();
-    session_destroy();
-    header("Location: ../login.php");
-    exit();
-}
+$hospital = new Hospital($conn);
+$result = $hospital->getAllHospital();
 
 ?>
 
@@ -27,39 +22,29 @@ if (isset($_POST['logout'])) {
                 <th>Alamat</th>
                 <th>Phone</th>
                 <th>Email</th>
-                <th>Website</th>
-                <th>Description</th>
-                <th>Rating</th>
-                <th>Rating</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
             <?php
-            $sql = "SELECT * FROM hospital";
-            $result = mysqli_query($conn, $sql);
             $count = 1;
             while ($row = mysqli_fetch_assoc($result)) :
             ?>
-            <tr>
-                <td><?= $row['hospital_id'] ?></td>
-                <td><?= $row["name"] ?></td>
-                <td><?= $row["address"] ?></td>
-                <td><?= $row["phone"] ?></td>
-                <td><?= $row["email"] ?></td>
-                <td><?= $row["website"] ?></td>
-                <td><?= $row["description"] ?></td>
-                <td><?= $row["rating"] ?></td>
-                <td><?= $row["num_ratings"] ?></td>
-                <td>
-                    <form action="/admin/hospital_edit.php?hospital_id=<?= $row["hospital_id"] ?>" method="post">
-                        <button type="submit" name="edit" class="button_action_custom">Edit</button>
-                    </form>
-                    <form action="/admin/hospital_delete.php?hospital_id=<?= $row["hospital_id"] ?>" method="post">
-                        <button type="submit" name="submit" class="button_action_custom">Delete</button>
-                    </form>
-                </td>
-            </tr>
+                <tr>
+                    <td><?= $row['hospital_id'] ?></td>
+                    <td><?= $row["name"] ?></td>
+                    <td><?= $row["address"] ?></td>
+                    <td><?= $row["phone"] ?></td>
+                    <td><?= $row["email"] ?></td>
+                    <td>
+                        <form action="/admin/hospital_edit.php?hospital_id=<?= $row["hospital_id"] ?>" method="post">
+                            <button type="submit" name="edit" class="button_action_custom">Edit</button>
+                        </form>
+                        <form action="/admin/hospital_delete.php?hospital_id=<?= $row["hospital_id"] ?>" method="post">
+                            <button type="submit" name="submit" class="button_action_custom">Delete</button>
+                        </form>
+                    </td>
+                </tr>
 
             <?php endwhile; ?>
 

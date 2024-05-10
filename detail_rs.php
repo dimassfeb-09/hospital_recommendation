@@ -1,11 +1,14 @@
 <?php
 include('navbar.php');
+require_once('models/Hospital.php');
+require_once('models/Rating.php');
 
-$hospital_id = $_GET["hospital_id"];
+$hospitalId = $_GET["hospital_id"];
+$hospital = new Hospital($conn);
+$ratingObj = new Rating($conn);
 
-$sql = "SELECT * FROM hospital WHERE hospital_id = $hospital_id";
-$result = mysqli_query($conn, $sql);
-while ($row = mysqli_fetch_assoc($result)) {
+$result = $hospital->getDetailHospital($hospitalId);
+while ($row = $result->fetch_assoc()) {
     $name = $row["name"];
     $address = $row["address"];
     $image = $row["image"];
@@ -20,19 +23,16 @@ if (isset($_POST['submit'])) {
     $rate = $_POST['rate'];
     $comment = $_POST['comment'];
 
-    $result = getRatingByHospitalAndUser($conn, $hospital_id, $userID);
+    $result = $ratingObj->getRatingByHospitalAndUser($hospitalId, $userID);
     if (mysqli_num_rows($result) == 1) {
         echo "<script>alert('Sudah pernah memberikan rating.')</script>";
-        echo "<script>window.location.href='detail_rs.php?hospital_id=$hospital_id';</script>";
+        echo "<script>window.location.href='detail_rs.php?hospital_id=$hospitalId';</script>";
         return;
     }
 
-    $sqlInsertRating = "INSERT INTO rating (hospital_id, user_id, rating_value, comment) 
-                            VALUES ('$hospital_id', '$userID', '$rate', '$comment')";
-    $resultInsertRating = mysqli_query($conn, $sqlInsertRating);
-
-    if ($resultInsertRating) {
-        calculateAverageRating($conn, $hospital_id);
+    $result = $ratingObj->insertRating($hospitalId, $userID, $rate, $comment);
+    if ($result) {
+        $ratingObj->calculateAverageRating($hospitalId);
         echo "<script>alert('Berhasil memberikan rating.')</script>";
     } else {
         echo "<script>alert('Gagal memberikan rating.')</script>";
@@ -42,78 +42,26 @@ if (isset($_POST['submit'])) {
 if (isset($_POST['submitEdit'])) {
     $rate = $_POST['rate'];
     $comment = $_POST['comment'];
+    $ratingId = $_POST['rating_id'];
 
-    $query = "UPDATE rating
-    SET rating_value = '$rate', comment = '$comment'
-    WHERE hospital_id = '$hospital_id' AND user_id = '$userID'";
-    $resultUpdateRating = mysqli_query($conn, $query);
-
-
-    if ($resultUpdateRating) {
-        calculateAverageRating($conn, $hospital_id);
+    $result = $ratingObj->updateRating($ratingId, $rate, $comment);
+    if ($result) {
+        $ratingObj->calculateAverageRating($hospitalId);
         echo "<script>alert('Berhasil update rating.')</script>";
     } else {
         echo "<script>alert('Gagal memberikan rating.')</script>";
     }
 }
 
-function getRatingByHospitalAndUser($conn, $hospitalId, $userId)
-{
-    $query = "SELECT * FROM rating WHERE hospital_id = '$hospitalId' AND user_id = '$userId' LIMIT 1";
-    return $conn->query($query);
-}
 
-function getDoctorHospital($conn, $hospitalId)
-{
-    $query = "
-    SELECT
-        d.doctor_id as doctor_id,
-        d.name AS doctor_name,
-        d.specialization as specialization,
-        d.phone as phone,
-        h.hospital_id,
-        h.name AS hospital_name
-    FROM
-        doctor d
-        INNER JOIN doctor_hospital dh ON d.doctor_id = dh.doctor_id
-        INNER JOIN hospital h ON dh.hospital_id = h.hospital_id
-    WHERE
-    h.hospital_id = '$hospitalId';";
-    $result = $conn->query($query);
-    return $result;
-}
 
-function getRatingHospital($conn, $hospitalId)
-{
-    $query = "SELECT r.rating_value, r.comment, r.created_at, u.full_name
-        FROM rating r
-        JOIN user u ON r.user_id = u.user_id
-        WHERE r.hospital_id = '$hospitalId'
-        ORDER BY r.created_at ASC";
-
-    $result = $conn->query($query);
-    return $result;
-}
-
-function calculateAverageRating($conn, $hospitalId)
-{
-    $query = "SELECT AVG(rating_value) AS average_rating, COUNT(*) AS num_ratings FROM rating WHERE hospital_id = '$hospitalId'";
-    $result = $conn->query($query);
-    while ($row = $result->fetch_assoc()) {
-        $average_rating = $row['average_rating'];
-        $num_ratings = $row['num_ratings'];
-    }
-
-    $queryUpdateRating = "UPDATE hospital SET rating = '$average_rating', num_ratings = '$num_ratings' WHERE hospital_id = '$hospitalId'";
-    $conn->query($queryUpdateRating);
-}
-
-$resultGetRating = getRatingHospital($conn, $hospital_id);
-$resultGetDoctor = getDoctorHospital($conn, $hospital_id);
-$resultIsUserAlreadyRating = getRatingByHospitalAndUser($conn, $hospital_id, $userID);
+$resultGetRating = $hospital->getRatingHospital($hospitalId);
+$resultGetDoctor = $hospital->getDoctorHospital($hospitalId);
+$resultIsUserAlreadyRating = $ratingObj->getRatingByHospitalAndUser($hospitalId, $userID);
 while ($row = $resultIsUserAlreadyRating->fetch_assoc()) {
-    $userRating = $row['rating_value'];
-    $userComment = $row['comment'];
+    $userRatingId = $row['rating_id'] ?? 0;
+    $userRating = $row['rating_value'] ?? 0;
+    $userComment = $row['comment'] ?? '';
 }
 
 ?>
@@ -216,9 +164,14 @@ while ($row = mysqli_fetch_assoc($resultGetRating)) :
 <div class="giving_rating_card ">
 
     <form id="ratingForm" class="rating_card" method="post">
-        <h3><?= $userRating ? 'Ubah rating kamu' : 'Berikan rating kamu' ?></h3>
+        <h3><?= $userRatingId ? 'Ubah rating kamu' : 'Berikan rating kamu' ?></h3>
 
         <?php if ($isAuthenticated) : ?>
+
+            <?php if ($userRatingId) : ?>
+                <input type="text" name="rating_id" value="<?= $userRatingId ?>" hidden />
+            <?php endif; ?>
+
             <div class="rate">
                 <?php for ($i = 5; $i >= 1; $i--) : ?>
                     <input type="radio" id="star<?= $i ?>" name="rate" value="<?= $i ?>" <?= $i == $userRating ? 'checked' : '' ?> />
@@ -231,7 +184,7 @@ while ($row = mysqli_fetch_assoc($resultGetRating)) :
                 <?php endfor; ?>
             </div>
 
-            <textarea id="comment" name="comment" rows="4" cols="30" style="padding: 5px;" placeholder="Edit pesan" <?= $userRating ? 'disabled' : '' ?>><?= $userComment ?? '' ?></textarea>
+            <textarea id="comment" name="comment" rows="4" cols="30" style="padding: 5px;" placeholder="<?= $userRatingId ? 'Edit Pesan' : 'Masukkan Pesan' ?>" <?= $userRatingId ? 'disabled' : '' ?>><?= $userComment ?? '' ?></textarea>
 
             <div class="flex">
                 <?php if (mysqli_num_rows($resultIsUserAlreadyRating) == 1) : ?>
