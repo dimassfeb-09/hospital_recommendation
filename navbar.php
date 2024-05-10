@@ -1,32 +1,25 @@
 <?php
 require_once('config.php');
+require_once('models/User.php');
 session_start();
 
 $isAuthenticated = isset($_SESSION['authenticated']) && $_SESSION['authenticated'];
 $emailSession = $_SESSION['email'] ?? '';
 
-if ($emailSession) {
-    $sqlGetUserInfo = "SELECT user_id, role FROM user WHERE email = '$emailSession'";
-    $resultUserInfo = mysqli_query($conn, $sqlGetUserInfo);
+$user = new User($conn);
 
+
+if ($emailSession) {
+    $resultUserInfo = $user->getUserDetailByEmail($emailSession);
     if ($resultUserInfo) {
         $row = mysqli_fetch_assoc($resultUserInfo);
         $userID = $row["user_id"];
         $role = $row["role"];
-
-        $requestUri = $_SERVER['REQUEST_URI'];
-        if (strpos($requestUri, '/admin/') === 0 && $role != "admin") {
-            header("Location: ../login.php");
-            exit;
-        }
     }
 }
 
 if (isset($_POST['logout'])) {
-    session_unset();
-    session_destroy();
-    $redirectUrl = (strpos($requestUri, '/admin/') === 0) ? "../login.php" : "/login.php";
-    header("Location: $redirectUrl");
+    $user->logout();
     exit;
 }
 ?>

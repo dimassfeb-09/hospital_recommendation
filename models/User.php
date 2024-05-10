@@ -61,7 +61,13 @@ class User
     {
         session_unset();
         session_destroy();
-        header("Location: ../login.php");
-        exit;
+
+        $requestUri = $_SERVER['REQUEST_URI'];
+        if (strpos($requestUri, '/admin/') === 0) {
+            header("Location: ../login.php");
+            exit;
+        }
+        $redirectUrl = (strpos($requestUri, '/admin/') === 0) ? "../login.php" : "/login.php";
+        header("Location: $redirectUrl");
     }
 }
