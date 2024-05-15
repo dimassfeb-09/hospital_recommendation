@@ -1,5 +1,25 @@
--- Active: 1713610427715@@127.0.0.1@3306@testtesss
-DROP TABLE IF EXISTS `doctor`;
+CREATE TABLE `user` (
+    `user_id` int NOT NULL AUTO_INCREMENT,
+    `full_name` varchar(30),
+    `email` varchar(30),
+    `password` varchar(30),
+    `role` enum('admin', 'basic'),
+    `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`user_id`)
+) ENGINE = InnoDB;
+
+INSERT INTO
+    `user`
+VALUES (
+        16,
+        'admin',
+        'admin@gmail.com',
+        'admin',
+        'admin',
+        '2024-04-21 12:09:23',
+        '2024-04-21 12:09:23'
+    );
 
 CREATE TABLE `doctor` (
     `doctor_id` int NOT NULL AUTO_INCREMENT,
@@ -93,38 +113,6 @@ VALUES (
         '2024-04-21 20:33:40',
         '2024-04-21 20:33:40'
     );
-
-DROP TABLE IF EXISTS `doctor_hospital`;
-
-CREATE TABLE `doctor_hospital` (
-    `doctor_hospital_id` int NOT NULL AUTO_INCREMENT,
-    `doctor_id` int DEFAULT NULL,
-    `hospital_id` int DEFAULT NULL,
-    `created_at` datetime DEFAULT NULL,
-    `updated_at` datetime DEFAULT NULL,
-    PRIMARY KEY (`doctor_hospital_id`),
-    KEY `doctor_id` (`doctor_id`),
-    KEY `hospital_id` (`hospital_id`),
-    CONSTRAINT `doctor_hospital_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctor` (`doctor_id`),
-    CONSTRAINT `doctor_hospital_ibfk_2` FOREIGN KEY (`hospital_id`) REFERENCES `hospital` (`hospital_id`)
-) ENGINE = InnoDB;
-
-INSERT INTO
-    `doctor_hospital` (
-        `doctor_id`,
-        `hospital_id`,
-        `created_at`,
-        `updated_at`
-    )
-SELECT
-    FLOOR(RAND() * 10) + 1 AS `doctor_id`,
-    FLOOR(RAND() * 20) + 130 AS `hospital_id`,
-    NOW() AS `created_at`,
-    NOW() AS `updated_at`
-FROM INFORMATION_SCHEMA.TABLES
-LIMIT 100;
-
-DROP TABLE IF EXISTS `hospital`;
 
 CREATE TABLE `hospital` (
     `hospital_id` int NOT NULL AUTO_INCREMENT,
@@ -425,19 +413,33 @@ VALUES (
         NULL
     );
 
-DROP TABLE IF EXISTS `message`;
-
-CREATE TABLE `message` (
-    `message_id` int NOT NULL AUTO_INCREMENT,
-    `name` varchar(30),
-    `email` varchar(30),
-    `message` text NOT NULL,
-    `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`message_id`)
+CREATE TABLE `doctor_hospital` (
+    `doctor_hospital_id` int NOT NULL AUTO_INCREMENT,
+    `doctor_id` int DEFAULT NULL,
+    `hospital_id` int DEFAULT NULL,
+    `created_at` datetime DEFAULT NULL,
+    `updated_at` datetime DEFAULT NULL,
+    PRIMARY KEY (`doctor_hospital_id`),
+    KEY `doctor_id` (`doctor_id`),
+    KEY `hospital_id` (`hospital_id`),
+    CONSTRAINT `doctor_hospital_ibfk_1` FOREIGN KEY (`doctor_id`) REFERENCES `doctor` (`doctor_id`),
+    CONSTRAINT `doctor_hospital_ibfk_2` FOREIGN KEY (`hospital_id`) REFERENCES `hospital` (`hospital_id`)
 ) ENGINE = InnoDB;
 
-DROP TABLE IF EXISTS `rating`;
+INSERT INTO
+    `doctor_hospital` (
+        `doctor_id`,
+        `hospital_id`,
+        `created_at`,
+        `updated_at`
+    )
+SELECT
+    FLOOR(RAND() * 10) + 1 AS `doctor_id`,
+    FLOOR(RAND() * 20) + 130 AS `hospital_id`,
+    NOW() AS `created_at`,
+    NOW() AS `updated_at`
+FROM INFORMATION_SCHEMA.TABLES
+LIMIT 100;
 
 CREATE TABLE `rating` (
     `rating_id` int NOT NULL AUTO_INCREMENT,
@@ -454,8 +456,6 @@ CREATE TABLE `rating` (
     CONSTRAINT `rating_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
 ) ENGINE = InnoDB;
 
-DROP TABLE IF EXISTS `recommendation`;
-
 CREATE TABLE `recommendation` (
     `recommendation_id` int NOT NULL AUTO_INCREMENT,
     `user_id` int DEFAULT NULL,
@@ -466,28 +466,3 @@ CREATE TABLE `recommendation` (
     CONSTRAINT `recommendation_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`),
     CONSTRAINT `recommendation_ibfk_2` FOREIGN KEY (`hospital_id`) REFERENCES `hospital` (`hospital_id`)
 ) ENGINE = InnoDB;
-
-DROP TABLE IF EXISTS `user`;
-
-CREATE TABLE `user` (
-    `user_id` int NOT NULL AUTO_INCREMENT,
-    `full_name` varchar(30),
-    `email` varchar(30),
-    `password` varchar(30),
-    `role` enum('admin', 'basic'),
-    `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` datetime DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`user_id`)
-) ENGINE = InnoDB;
-
-INSERT INTO
-    `user`
-VALUES (
-        16,
-        'admin',
-        'admin@gmail.com',
-        'admin',
-        'admin',
-        '2024-04-21 12:09:23',
-        '2024-04-21 12:09:23'
-    );
