@@ -3,67 +3,74 @@ include('navbar.php');
 require_once('models/Hospital.php');
 require_once('models/Rating.php');
 
-$hospitalId = $_GET["hospital_id"];
+$hospitalId = $_GET["hospital_id"] ?? null;
+if (!$hospitalId) {
+    echo "<script>alert('ID Rumah Sakit tidak ditemukan.'); window.location.href='index.php';</script>";
+    exit;
+}
+
 $hospital = new Hospital($conn);
 $ratingObj = new Rating($conn);
 
 $result = $hospital->getDetailHospital($hospitalId);
-while ($row = $result->fetch_assoc()) {
-    $name = $row["name"];
-    $address = $row["address"];
-    $image = $row["image"];
-    $phone = $row["phone"];
-    $email = $row["email"];
-    $website = $row["website"];
-    $description = $row["description"];
-    $rating = $row["rating"];
+$hospitalDetails = $result->fetch_assoc();
+
+if ($hospitalDetails) {
+    $name = $hospitalDetails["name"] ?? '';
+    $address = $hospitalDetails["address"] ?? '';
+    $image = $hospitalDetails["image"] ?? null;
+    $phone = $hospitalDetails["phone"] ?? '';
+    $email = $hospitalDetails["email"] ?? '';
+    $website = $hospitalDetails["website"] ?? '';
+    $description = $hospitalDetails["description"] ?? '';
+    $rating = $hospitalDetails["rating"] ?? '';
+} else {
+    echo "<script>alert('Detail Rumah Sakit tidak ditemukan.'); window.location.href='index.php';</script>";
+    exit;
 }
 
 if (isset($_POST['submit'])) {
-    $rate = $_POST['rate'];
-    $comment = $_POST['comment'];
+    $rate = $_POST['rate'] ?? 0;
+    $comment = $_POST['comment'] ?? '';
 
     $result = $ratingObj->getRatingByHospitalAndUser($hospitalId, $userID);
-    if (mysqli_num_rows($result) == 1) {
-        echo "<script>alert('Sudah pernah memberikan rating.')</script>";
+    if (mysqli_num_rows($result) > 0) {
+        echo "<script>alert('Anda sudah pernah memberikan rating.')</script>";
         echo "<script>window.location.href='detail_rs.php?hospital_id=$hospitalId';</script>";
-        return;
-    }
-
-    $result = $ratingObj->insertRating($hospitalId, $userID, $rate, $comment);
-    if ($result) {
-        $ratingObj->calculateAverageRating($hospitalId);
-        echo "<script>alert('Berhasil memberikan rating.')</script>";
     } else {
-        echo "<script>alert('Gagal memberikan rating.')</script>";
+        $result = $ratingObj->insertRating($hospitalId, $userID, $rate, $comment);
+        if ($result) {
+            $ratingObj->calculateAverageRating($hospitalId);
+            echo "<script>alert('Terima kasih atas rating Anda.')</script>";
+        } else {
+            echo "<script>alert('Gagal memberikan rating.')</script>";
+        }
     }
 }
 
 if (isset($_POST['submitEdit'])) {
-    $rate = $_POST['rate'];
-    $comment = $_POST['comment'];
-    $ratingId = $_POST['rating_id'];
+    $rate = $_POST['rate'] ?? 0;
+    $comment = $_POST['comment'] ?? '';
+    $ratingId = $_POST['rating_id'] ?? null;
 
-    $result = $ratingObj->updateRating($ratingId, $rate, $comment);
-    if ($result) {
-        $ratingObj->calculateAverageRating($hospitalId);
-        echo "<script>alert('Berhasil update rating.')</script>";
-    } else {
-        echo "<script>alert('Gagal memberikan rating.')</script>";
+    if ($ratingId) {
+        $result = $ratingObj->updateRating($ratingId, $rate, $comment);
+        if ($result) {
+            $ratingObj->calculateAverageRating($hospitalId);
+            echo "<script>alert('Rating berhasil diperbarui.')</script>";
+        } else {
+            echo "<script>alert('Gagal memperbarui rating.')</script>";
+        }
     }
 }
-
-
 
 $resultGetRating = $hospital->getRatingHospital($hospitalId);
 $resultGetDoctor = $hospital->getDoctorHospital($hospitalId);
 $resultIsUserAlreadyRating = $ratingObj->getRatingByHospitalAndUser($hospitalId, $userID);
-while ($row = $resultIsUserAlreadyRating->fetch_assoc()) {
-    $userRatingId = $row['rating_id'] ?? 0;
-    $userRating = $row['rating_value'] ?? 0;
-    $userComment = $row['comment'] ?? '';
-}
-
+$userRatingDetails = $resultIsUserAlreadyRating->fetch_assoc();
+$userRatingId = $userRatingDetails['rating_id'] ?? 0;
+$userRating = $userRatingDetails['rating_value'] ?? 0;
+$userComment = $userRatingDetails['comment'] ?? '';
 ?>
 
 
