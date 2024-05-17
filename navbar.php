@@ -13,6 +13,8 @@ $user = new User($conn);
 $userID = 0;
 $role = '';
 
+
+
 if ($emailSession) {
     $resultUserInfo = $user->getUserDetailByEmail($emailSession);
 
@@ -27,6 +29,10 @@ if ($emailSession) {
     } else {
         error_log("Failed to retrieve user details for email: $emailSession");
     }
+}
+
+if ($isAdmin && $role != "admin") {
+    echo "<script>window.location.href='../login.php';</script>";
 }
 
 if (isset($_POST['logout'])) {
