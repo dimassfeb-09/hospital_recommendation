@@ -91,7 +91,8 @@ $userComment = $userRatingDetails['comment'] ?? '';
 <section class="about_rs">
     <span><?= $name ?></span>
     <?php if ($image) : ?>
-    <img src="<?= $image ?>" alt="Foto <?= $name ?>" style="margin: 30px 0px; border-radius: 20px;">
+    <img src="<?= $image ?>" alt="Foto <?= $name ?>"
+        style="margin: 30px 0px; border-radius: 20px; width: 600px; height: 400px">
     <?php endif ?>
     <span><?= $description ?></span>
 </section>
