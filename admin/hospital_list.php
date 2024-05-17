@@ -10,7 +10,7 @@ $result = $hospital->getAllHospital();
 <div class="table_body_custom">
     <div>
         <div>
-            <a href="/admin/hospital_add.php" class="button_action_custom">Tambah Rumah Sakit</a>
+            <a href="hospital_add.php" class="button_action_custom">Tambah Rumah Sakit</a>
         </div>
         <div></div>
     </div>
@@ -30,21 +30,21 @@ $result = $hospital->getAllHospital();
             $count = 1;
             while ($row = mysqli_fetch_assoc($result)) :
             ?>
-                <tr>
-                    <td><?= $row['hospital_id'] ?></td>
-                    <td><?= $row["name"] ?></td>
-                    <td><?= $row["address"] ?></td>
-                    <td><?= $row["phone"] ?></td>
-                    <td><?= $row["email"] ?></td>
-                    <td>
-                        <form action="/admin/hospital_edit.php?hospital_id=<?= $row["hospital_id"] ?>" method="post">
-                            <button type="submit" name="edit" class="button_action_custom">Edit</button>
-                        </form>
-                        <form action="/admin/hospital_delete.php?hospital_id=<?= $row["hospital_id"] ?>" method="post">
-                            <button type="submit" name="submit" class="button_action_custom">Delete</button>
-                        </form>
-                    </td>
-                </tr>
+            <tr>
+                <td><?= $row['hospital_id'] ?></td>
+                <td><?= $row["name"] ?></td>
+                <td><?= $row["address"] ?></td>
+                <td><?= $row["phone"] ?></td>
+                <td><?= $row["email"] ?></td>
+                <td>
+                    <form action="hospital_edit.php?hospital_id=<?= $row["hospital_id"] ?>" method="post">
+                        <button type="submit" name="edit" class="button_action_custom">Edit</button>
+                    </form>
+                    <form action="hospital_delete.php?hospital_id=<?= $row["hospital_id"] ?>" method="post">
+                        <button type="submit" name="submit" class="button_action_custom">Delete</button>
+                    </form>
+                </td>
+            </tr>
 
             <?php endwhile; ?>
 

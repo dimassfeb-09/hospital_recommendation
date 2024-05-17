@@ -77,8 +77,8 @@ if (isset($_POST['logout'])) {
 
     <div id="adminPopup" class="popup">
         <ul>
-            <li><a href="/admin/doctor_list.php">Dokter</a></li>
-            <li><a href="/admin/hospital_list.php">Rumah Sakit</a></li>
-            <li><a href="/admin/user_list.php">Akun Pengguna</a></li>
+            <li><a href="admin/doctor_list.php">Dokter</a></li>
+            <li><a href="admin/hospital_list.php">Rumah Sakit</a></li>
+            <li><a href="admin/user_list.php">Akun Pengguna</a></li>
         </ul>
     </div>
