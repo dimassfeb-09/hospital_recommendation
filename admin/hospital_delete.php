@@ -16,8 +16,7 @@ $hospital = new Hospital($conn);
 
 $resultUser = $user->getUserDetailByEmail($email);
 if (!$resultUser || mysqli_num_rows($resultUser) <= 0) {
-    $errorMsg = "Gagal mengambil data user.";
-    echo "<script>alert('$errorMsg');</script>";
+    echo "<script>alert('Gagal mengambil data user.');</script>";
     header("Location: hospital_list.php");
     exit;
 }
@@ -27,19 +26,18 @@ $role = $userData['role'];
 
 $resultHospitalRelation = $hospitalDoctor->checkHospitalRelation($hospitalId);
 if ($resultHospitalRelation && mysqli_num_rows($resultHospitalRelation) > 0) {
-    echo "<script>alert('Gagal hapus data rumah sakit.');</script>";
+    echo "<script>alert('Gagal menghapus data rumah sakit.');</script>";
     echo "<script>window.location.href='hospital_list.php';</script>";
     exit;
 }
 
 $deleteResult = $hospital->deleteHospital($hospitalId);
 if ($deleteResult) {
-    echo "<script>alert('Berhasil hapus data rumah sakit');</script>";
+    echo "<script>alert('Berhasil menghapus data rumah sakit');</script>";
     echo "<script>window.location.href='hospital_list.php';</script>";
     exit;
 } else {
-    $errorMsg = "Gagal menghapus data rumah sakit.";
-    echo "<script>alert('$errorMsg');</script>";
+    echo "<script>alert('Gagal menghapus data rumah sakit.');</script>";
     echo "<script>window.location.href='hospital_list.php';</script>";
     exit;
 }
