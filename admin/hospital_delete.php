@@ -29,9 +29,8 @@ if ($resultHospitalRelation && mysqli_num_rows($resultHospitalRelation) > 0) {
     echo "<script>alert('Gagal menghapus data rumah sakit.');</script>";
     echo "<script>window.location.href='hospital_list.php';</script>";
     exit;
-}
-
-$deleteResult = $hospital->deleteHospital($hospitalId);
+} else {
+    $deleteResult = $hospital->deleteHospital($hospitalId);
 if ($deleteResult) {
     echo "<script>alert('Berhasil menghapus data rumah sakit');</script>";
     echo "<script>window.location.href='hospital_list.php';</script>";
@@ -40,4 +39,5 @@ if ($deleteResult) {
     echo "<script>alert('Gagal menghapus data rumah sakit.');</script>";
     echo "<script>window.location.href='hospital_list.php';</script>";
     exit;
+}
 }

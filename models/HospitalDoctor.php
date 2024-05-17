@@ -22,7 +22,7 @@ class HospitalDoctor
 
     public function checkHospitalRelation($hospitalId)
     {
-        $query = "SELECT hospital_id FROM doctor_hospital WHERE hospital_id = '$hospitalId' LIMIT 1";
+        $query = "SELECT hospital_id FROM rating WHERE hospital_id = '$hospitalId' LIMIT 1";
         return $this->exec($query);
     }
 }
