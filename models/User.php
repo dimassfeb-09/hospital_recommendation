@@ -34,7 +34,7 @@ class User
 
     function insertUser($fullName, $email, $password, $role)
     {
-        $query = "INSERT INTO user (full_name, email, password, role) 
+        $query = "INSERT INTO user (full_name, email, password, role)
         VALUES ('$fullName', '$email', '$password', '$role')";
         return $this->exec($query);
     }
@@ -59,15 +59,14 @@ class User
 
     function logout()
     {
+
+        $currentPath = $_SERVER['REQUEST_URI'];
+        $isAdmin = strpos($currentPath, '/admin') !== false;
+
         session_unset();
         session_destroy();
 
-        $requestUri = $_SERVER['REQUEST_URI'];
-        if (strpos($requestUri, '/admin/') === 0) {
-            header("Location: ../login.php");
-            exit;
-        }
-        $redirectUrl = (strpos($requestUri, '/admin/') === 0) ? "../login.php" : "/login.php";
+        $redirectUrl = $isAdmin ? "../login.php" : "login.php";
         header("Location: $redirectUrl");
     }
 }

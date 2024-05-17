@@ -1,6 +1,5 @@
 <?php
 require('../navbar.php');
-require('../models/User.php');
 
 $user = new User($conn);
 

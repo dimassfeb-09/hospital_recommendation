@@ -1,13 +1,13 @@
 <?php
 include('../navbar.php');
 require '../config.php';
-session_start();
+require_once('../models/User.php');
+
 
 $isAuthenticated = isset($_SESSION['authenticated']);
 $email = $_SESSION['email'];
 
 if ($isAuthenticated && isset($email)) {
-    require_once('../models/User.php');
 
     $user = new User($conn);
     $result = $user->getAllUser();
