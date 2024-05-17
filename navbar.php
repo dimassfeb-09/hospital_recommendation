@@ -5,6 +5,8 @@ session_start();
 
 $isAuthenticated = isset($_SESSION['authenticated']) && $_SESSION['authenticated'];
 $emailSession = $_SESSION['email'] ?? '';
+$currentPath = $_SERVER['REQUEST_URI'];
+$isAdmin = strpos($currentPath, '/admin') !== false;
 
 $user = new User($conn);
 
@@ -42,7 +44,7 @@ if (isset($_POST['logout'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="<?php echo ($role == 'admin' ? '../' : '') . 'assets/css/style.css'; ?>">
+    <link rel="stylesheet" href="<?php echo ($isAdmin == 'admin' ? '../' : '') . 'assets/css/style.css'; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
