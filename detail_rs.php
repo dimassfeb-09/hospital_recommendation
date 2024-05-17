@@ -43,6 +43,8 @@ if (isset($_POST['submit'])) {
             $ratingObj->calculateAverageRating($hospitalId);
             echo "<script>alert('Terima kasih atas rating Anda.')</script>";
         } else {
+            $error_message = "error debug: " . $conn->error;
+            echo "<script>alert(" . json_encode($error_message) . ");</script>";
             echo "<script>alert('Gagal memberikan rating.')</script>";
         }
     }
@@ -89,7 +91,7 @@ $userComment = $userRatingDetails['comment'] ?? '';
 <section class="about_rs">
     <span><?= $name ?></span>
     <?php if ($image) : ?>
-        <img src="<?= $image ?>" alt="Foto <?= $name ?>" style="margin: 30px 0px; border-radius: 20px;">
+    <img src="<?= $image ?>" alt="Foto <?= $name ?>" style="margin: 30px 0px; border-radius: 20px;">
     <?php endif ?>
     <span><?= $description ?></span>
 </section>
@@ -128,12 +130,12 @@ $userComment = $userRatingDetails['comment'] ?? '';
             $count = 1;
             while ($row = mysqli_fetch_assoc($resultGetDoctor)) :
             ?>
-                <tr>
-                    <td><?= $count++ ?></td>
-                    <td><?= $row["doctor_name"] ?></td>
-                    <td><?= $row["specialization"] ?></td>
-                    <td><?= $row["phone"] ?></td>
-                </tr>
+            <tr>
+                <td><?= $count++ ?></td>
+                <td><?= $row["doctor_name"] ?></td>
+                <td><?= $row["specialization"] ?></td>
+                <td><?= $row["phone"] ?></td>
+            </tr>
 
             <?php endwhile; ?>
 
@@ -149,22 +151,22 @@ $userComment = $userRatingDetails['comment'] ?? '';
 <?php
 while ($row = mysqli_fetch_assoc($resultGetRating)) :
 ?>
-    <section class="rating_user">
-        <div class="rating_card_user">
-            <div class="profile_detail">
-                <i class="fa fa-user profile_icon"></i>
+<section class="rating_user">
+    <div class="rating_card_user">
+        <div class="profile_detail">
+            <i class="fa fa-user profile_icon"></i>
+            <div>
+                <div><?= $row['full_name'] ?></div>
+                <div><?= $row['created_at'] ?></div>
                 <div>
-                    <div><?= $row['full_name'] ?></div>
-                    <div><?= $row['created_at'] ?></div>
-                    <div>
-                        <i class="fa fa-star"></i>
-                        <?= $row['rating_value'] ?>
-                    </div>
+                    <i class="fa fa-star"></i>
+                    <?= $row['rating_value'] ?>
                 </div>
             </div>
-            <div class="comment_review"><?= $row['comment'] ?></div>
         </div>
-    </section>
+        <div class="comment_review"><?= $row['comment'] ?></div>
+    </div>
+</section>
 
 <?php endwhile; ?>
 
@@ -175,96 +177,105 @@ while ($row = mysqli_fetch_assoc($resultGetRating)) :
 
         <?php if ($isAuthenticated) : ?>
 
-            <?php if ($userRatingId) : ?>
-                <input type="text" name="rating_id" value="<?= $userRatingId ?>" hidden />
+        <?php if ($userRatingId) : ?>
+        <input type="text" name="rating_id" value="<?= $userRatingId ?>" hidden />
+        <?php endif; ?>
+
+        <div class="rate">
+            <?php for ($i = 5; $i >= 1; $i--) : ?>
+            <input type="radio" id="star<?= $i ?>" name="rate" value="<?= $i ?>"
+                <?= $i == $userRating ? 'checked' : '' ?> />
+            <label for="star<?= $i ?>" title="<?= $i ?> stars" class="cursor-pointer" onclick="handleRating(<?= $i ?>)">
+                <svg class="w-6 h-6 fill-current <?= $i <= $userRating ? 'text-yellow-500' : 'text-gray-500' ?>"
+                    viewBox="0 0 24 24">
+                    <path
+                        d="M12 2l3.09 6.31 6.91.82-5 4.87 1.18 7.19L12 18.77l-6.09 3.22 1.18-7.19-5-4.87 6.91-.82L12 2z">
+                    </path>
+                </svg>
+            </label>
+            <?php endfor; ?>
+        </div>
+
+        <textarea id="comment" name="comment" rows="4" cols="30" style="padding: 5px;"
+            placeholder="<?= $userRatingId ? 'Edit Pesan' : 'Masukkan Pesan' ?>"
+            <?= $userRatingId ? 'disabled' : '' ?>><?= $userComment ?? '' ?></textarea>
+
+        <div class="flex">
+            <?php if (mysqli_num_rows($resultIsUserAlreadyRating) == 1) : ?>
+            <button type="button" name="edit" value="edit" class="button_custom" style="margin-top: 10px;"
+                onclick="handleEdit()">Edit</button>
+            <button type="submit" name="submitEdit" value="submitEdit" class="button_custom hidden"
+                style="margin-top: 10px;">Submit Edit</button>
+            <button type="button" name="cancel" value="cancel" class="button_custom hidden" style="margin-top: 10px;"
+                onclick="handleCancel()">Cancel</button>
+            <?php else : ?>
+            <button type="submit" name="submit" value="submit" class="button_custom"
+                style="margin-top: 10px;">Submit</button>
             <?php endif; ?>
 
-            <div class="rate">
-                <?php for ($i = 5; $i >= 1; $i--) : ?>
-                    <input type="radio" id="star<?= $i ?>" name="rate" value="<?= $i ?>" <?= $i == $userRating ? 'checked' : '' ?> />
-                    <label for="star<?= $i ?>" title="<?= $i ?> stars" class="cursor-pointer" onclick="handleRating(<?= $i ?>)">
-                        <svg class="w-6 h-6 fill-current <?= $i <= $userRating ? 'text-yellow-500' : 'text-gray-500' ?>" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.31 6.91.82-5 4.87 1.18 7.19L12 18.77l-6.09 3.22 1.18-7.19-5-4.87 6.91-.82L12 2z">
-                            </path>
-                        </svg>
-                    </label>
-                <?php endfor; ?>
-            </div>
-
-            <textarea id="comment" name="comment" rows="4" cols="30" style="padding: 5px;" placeholder="<?= $userRatingId ? 'Edit Pesan' : 'Masukkan Pesan' ?>" <?= $userRatingId ? 'disabled' : '' ?>><?= $userComment ?? '' ?></textarea>
-
-            <div class="flex">
-                <?php if (mysqli_num_rows($resultIsUserAlreadyRating) == 1) : ?>
-                    <button type="button" name="edit" value="edit" class="button_custom" style="margin-top: 10px;" onclick="handleEdit()">Edit</button>
-                    <button type="submit" name="submitEdit" value="submitEdit" class="button_custom hidden" style="margin-top: 10px;">Submit Edit</button>
-                    <button type="button" name="cancel" value="cancel" class="button_custom hidden" style="margin-top: 10px;" onclick="handleCancel()">Cancel</button>
-                <?php else : ?>
-                    <button type="submit" name="submit" value="submit" class="button_custom" style="margin-top: 10px;">Submit</button>
-                <?php endif; ?>
-
-            </div>
+        </div>
         <?php else : ?>
-            <div><a href="login.php">Login</a> untuk memberikan rating</div>
+        <div><a href="login.php">Login</a> untuk memberikan rating</div>
         <?php endif; ?>
     </form>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var form = document.getElementById('ratingForm');
-        var radios = form.querySelectorAll('input[type="radio"]');
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('ratingForm');
+    var radios = form.querySelectorAll('input[type="radio"]');
 
-        radios.forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                window.scrollTo(0, form.offsetTop);
-            });
+    radios.forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            window.scrollTo(0, form.offsetTop);
         });
     });
+});
 
-    function handleRating(rating) {
-        const radios = document.querySelectorAll('input[name="rate"]');
-        radios.forEach((radio, index) => {
+function handleRating(rating) {
+    const radios = document.querySelectorAll('input[name="rate"]');
+    radios.forEach((radio, index) => {
 
-            if (radio.disabled == true) {
-                return;
-            }
+        if (radio.disabled == true) {
+            return;
+        }
 
-            const starSVG = radio.nextElementSibling.querySelector('.w-6.h-6.fill-current');
-            if (index < rating) {
-                starSVG.classList.add('text-yellow-500');
-                starSVG.classList.remove('text-gray-500');
-            } else {
-                starSVG.classList.remove('text-yellow-500');
-                starSVG.classList.add('text-gray-500');
-            }
-        });
-    }
+        const starSVG = radio.nextElementSibling.querySelector('.w-6.h-6.fill-current');
+        if (index < rating) {
+            starSVG.classList.add('text-yellow-500');
+            starSVG.classList.remove('text-gray-500');
+        } else {
+            starSVG.classList.remove('text-yellow-500');
+            starSVG.classList.add('text-gray-500');
+        }
+    });
+}
 
-    function handleEdit() {
-        const editBtn = document.querySelector('[name="edit"]');
-        const cancelBtn = document.querySelector('[name="cancel"]');
-        const submitEditBtn = document.querySelector('[name="submitEdit"]');
-        const textarea = document.getElementById('comment');
+function handleEdit() {
+    const editBtn = document.querySelector('[name="edit"]');
+    const cancelBtn = document.querySelector('[name="cancel"]');
+    const submitEditBtn = document.querySelector('[name="submitEdit"]');
+    const textarea = document.getElementById('comment');
 
-        editBtn.classList.add('hidden');
-        cancelBtn.classList.remove('hidden');
-        submitEditBtn.classList.remove('hidden');
-        textarea.disabled = false;
-        document.querySelectorAll('input[name="rate"]').forEach(radio => radio.disabled = false);
-    }
+    editBtn.classList.add('hidden');
+    cancelBtn.classList.remove('hidden');
+    submitEditBtn.classList.remove('hidden');
+    textarea.disabled = false;
+    document.querySelectorAll('input[name="rate"]').forEach(radio => radio.disabled = false);
+}
 
-    function handleCancel() {
-        const editBtn = document.querySelector('[name="edit"]');
-        const cancelBtn = document.querySelector('[name="cancel"]');
-        const submitEditBtn = document.querySelector('[name="submitEdit"]');
-        const textarea = document.getElementById('comment');
+function handleCancel() {
+    const editBtn = document.querySelector('[name="edit"]');
+    const cancelBtn = document.querySelector('[name="cancel"]');
+    const submitEditBtn = document.querySelector('[name="submitEdit"]');
+    const textarea = document.getElementById('comment');
 
-        editBtn.classList.remove('hidden');
-        cancelBtn.classList.add('hidden');
-        submitEditBtn.classList.add('hidden');
-        textarea.disabled = true;
-        document.querySelectorAll('input[name="rate"]').forEach(radio => radio.disabled = true);
-    }
+    editBtn.classList.remove('hidden');
+    cancelBtn.classList.add('hidden');
+    submitEditBtn.classList.add('hidden');
+    textarea.disabled = true;
+    document.querySelectorAll('input[name="rate"]').forEach(radio => radio.disabled = true);
+}
 </script>
 
 <?php include('footer.php') ?>

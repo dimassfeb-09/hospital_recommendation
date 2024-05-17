@@ -8,13 +8,22 @@ $emailSession = $_SESSION['email'] ?? '';
 
 $user = new User($conn);
 
+$userID = 0;
+$role = '';
 
 if ($emailSession) {
     $resultUserInfo = $user->getUserDetailByEmail($emailSession);
+
     if ($resultUserInfo) {
         $row = mysqli_fetch_assoc($resultUserInfo);
-        $userID = $row["user_id"] ?? 0;
-        $role = $row["role"] ?? 0;
+        if ($row) {
+            $userID = $row["user_id"];
+            $role = $row["role"];
+        } else {
+            error_log("User details not found for email: $emailSession");
+        }
+    } else {
+        error_log("Failed to retrieve user details for email: $emailSession");
     }
 }
 
@@ -25,6 +34,7 @@ if (isset($_POST['logout'])) {
 ?>
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -32,8 +42,8 @@ if (isset($_POST['logout'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="<?php echo ($role == 'admin' ? '../' : '') . 'assets/css/style.css'; ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
@@ -42,7 +52,7 @@ if (isset($_POST['logout'])) {
         <ul>
             <li><a href="../index.php">Dashboard</a></li>
             <?php if ($role === "admin" && $isAuthenticated) : ?>
-                <li id="adminLink"><a href="#">Admin</a></li>
+            <li id="adminLink"><a href="#">Admin</a></li>
             <?php endif; ?>
 
         </ul>
@@ -53,13 +63,13 @@ if (isset($_POST['logout'])) {
 
 
         <?php if ($isAuthenticated) : ?>
-            <form method="post">
-                <button type="submit" class="button_custom" name="logout">Logout</button>
-            </form>
+        <form method="post">
+            <button type="submit" class="button_custom" name="logout">Logout</button>
+        </form>
         <?php else : ?>
-            <form action="login.php">
-                <button type="submit" class="button_custom">Login</button>
-            </form>
+        <form action="login.php">
+            <button type="submit" class="button_custom">Login</button>
+        </form>
         <?php endif; ?>
     </nav>
 
